@@ -89,7 +89,7 @@ if __name__ == '__main__':
     img_size = 299
 
     dm = get_MTL_datamodule(video=False, img_size = img_size,
-        batch_size=24, num_workers_train=0, num_workers_test=0)
+        batch_size=24, num_workers_train=8, num_workers_test=8)
 
     ckp_dir = os.path.join(args.ckp_save_dir, args.exp_name)
     # on TACC platform, save the model in USERDIR
@@ -111,9 +111,9 @@ if __name__ == '__main__':
         default_root_dir = ckp_dir, logger = tb_logger, log_every_n_steps=100, 
         max_steps = 3e5,
         callbacks =[lr_monitor, ckp_callback1],
-        resume_from_checkpoint=args.resume_ckp)
-        # limit_train_batches = 0.1, 
-        # limit_val_batches = 0.1)
+        resume_from_checkpoint=args.resume_ckp,
+        limit_train_batches = 0.001, 
+        limit_val_batches = 0.005)
 
     if args.find_best_lr:
         lr_finder = trainer.tuner.lr_find(model, datamodule = dm, 
