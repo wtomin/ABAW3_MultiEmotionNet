@@ -89,7 +89,7 @@ class ImageDataset(DatasetBase):
             # replace the directory 
             dirname = "/media/Samsung/ABAW3_Challenge"
             if dirname in img_path:
-                img_path = img_path.replace(dirname, "../scratch/ABAW3_Challenge")
+                img_path = img_path.replace(dirname, "../../scratch")
                 if not os.path.exists(img_path):
                     USERDIR = os.environ.get('TACC_USERDIR')
                     img_path = img_path.replace("../scratch/ABAW3_Challenge", os.path.join(USERDIR, 'personal_datasets'))
