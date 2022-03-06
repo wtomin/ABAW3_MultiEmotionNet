@@ -111,9 +111,9 @@ if __name__ == '__main__':
         default_root_dir = ckp_dir, logger = tb_logger, log_every_n_steps=100, 
         max_steps = 3e5,
         callbacks =[lr_monitor, ckp_callback1],
-        resume_from_checkpoint=args.resume_ckp,
-        limit_train_batches = 0.001, 
-        limit_val_batches = 0.005)
+        resume_from_checkpoint=args.resume_ckp)
+        # limit_train_batches = 0.001, 
+        # limit_val_batches = 0.005)
 
     if args.find_best_lr:
         lr_finder = trainer.tuner.lr_find(model, datamodule = dm, 
