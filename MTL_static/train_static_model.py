@@ -112,8 +112,8 @@ if __name__ == '__main__':
         max_steps = 3e5,
         callbacks =[lr_monitor, ckp_callback1],
         resume_from_checkpoint=args.resume_ckp)
-        # limit_train_batches = 0.001, 
-        # limit_val_batches = 0.005)
+        # limit_train_batches = 0.01, 
+        # limit_val_batches = 0.01)
 
     if args.find_best_lr:
         lr_finder = trainer.tuner.lr_find(model, datamodule = dm, 

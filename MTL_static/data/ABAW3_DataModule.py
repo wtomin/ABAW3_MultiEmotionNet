@@ -4,6 +4,7 @@ from PATH import PATH
 PRESET_VARS = PATH()
 from typing import Optional, List, Union
 from data.dataset import ImageDataset, ImageSequenceDataset, ConcatDataset, ConcatImageSequenceDataset, DataModuleBase
+from utils.sampler import RandomSubsetShuffledSampler
 from utils.data_utils import train_transforms, test_transforms
 def parse_emotion_label(df_row):
     AU_names = PRESET_VARS.ABAW3.categories['AU']
@@ -63,25 +64,27 @@ class MTL_DataModule(DataModuleBase):
         D1 = torch.utils.data.DataLoader(self.trainsets1,
                 batch_size =  self.batch_size1,
                 num_workers = self.num_workers_train,
-                shuffle = True,
+                sampler = RandomSubsetShuffledSampler(list(range(len(self.trainsets1))), splits = 8),
                 drop_last = True)
         if self.trainsets2 is not None:
             D2 = torch.utils.data.DataLoader(self.trainsets2,
                     batch_size =  self.batch_size2,
                     num_workers = self.num_workers_train,
-                    shuffle = True,
+                    sampler = RandomSubsetShuffledSampler(list(range(len(self.trainsets2))), splits = 4),
                     drop_last = True)
             return {"single": D1, "multiple": D2}
         else:
             return {'single': D1}
     def val_dataloader(self):
+        val_batch_size = self.batch_size1*3
         val_loaders = [torch.utils.data.DataLoader(valset,
-                batch_size = self.batch_size1, num_workers = self.num_workers_test,
+                batch_size = val_batch_size, num_workers = self.num_workers_test,
                 shuffle=False, drop_last = False) for valset in self.valsets1]
-        val_loaders+= [torch.utils.data.DataLoader(valset,
-                batch_size = self.batch_size2, num_workers = self.num_workers_test,
-                shuffle=False, drop_last = False) for valset in self.valsets2]
-        return val_loaders # five val loaders
+        if self.valsets2 is not None:
+            val_loaders+= [torch.utils.data.DataLoader(valset,
+                    batch_size = val_batch_size, num_workers = self.num_workers_test,
+                    shuffle=False, drop_last = False) for valset in self.valsets2]
+        return val_loaders # five or three val loaders
 
 def get_MTL_datamodule(video, img_size, batch_size, seq_len=None, num_workers_train=0, num_workers_test=0):
     dataset1 = get_Dataset_TrainVal("create_annotation_file/AU/AU_annotations.pkl", video=video,
@@ -103,8 +106,10 @@ def get_MTL_datamodule(video, img_size, batch_size, seq_len=None, num_workers_tr
     dm = MTL_DataModule(video,
         [dataset1[0], dataset2[0], dataset3[0]], 
         [dataset1[1], dataset2[1], dataset3[1]], batch_size,
+        # None, None, None,
         [dataset4[0], dataset5[0]], [dataset4[1], dataset5[1]],
-        max(1, batch_size*0.03),
-        num_workers_train = num_workers_train, num_workers_test=num_workers_test)
+        max(1, int(batch_size*(1/15))),
+        num_workers_train = num_workers_train, 
+        num_workers_test=num_workers_test)
 
     return dm

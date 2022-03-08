@@ -373,7 +373,7 @@ class ConcatDataset(torch.utils.data.Dataset):
                 for _ in range(max_length//N):
                     self.datasets[i].df = pd.concat([self.datasets[i].df, dataset_df])
                 print("dataset {} resampled from {} to {} images".format(i, N, len(self.datasets[i])))
-
+        print("The reference length of datasets is {}".format(max_length))
     def __getitem__(self, i):
         return tuple(d[i] for d in self.datasets) # it turns out the longer video was sampled less!
 
@@ -393,3 +393,4 @@ class ConcatImageSequenceDataset(ConcatDataset):
                 for _ in range(max_length//N):
                     self.datasets[i].sample_seqs += self.datasets[i].sample_seqs
                 print("dataset {} resampled from {} to {} images".format(i, N, len(self.datasets[i])))
+        print("The reference length of datasets is {}".format(max_length))
