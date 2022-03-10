@@ -353,14 +353,15 @@ class Multitask_EmotionNet(pl.LightningModule):
         return F.l1_loss(y_hat, y)
     
     def save_val_metrics_to_logging(self, task, preds_task, labels_task, save_name):
-        metric_values, metric_task = get_metric_func(task)(preds_task.numpy(), labels_task.numpy())
+        metric_values, _ = get_metric_func(task)(preds_task.numpy(), labels_task.numpy())
         if task != 'VA':
             self.log('{}_F1'.format(save_name), metric_values[0], on_epoch=True, logger=True)
-            self.log('{}_Acc'.format(save_name), metric_values[0], on_epoch=True, logger=True)
+            self.log('{}_Acc'.format(save_name), metric_values[1], on_epoch=True, logger=True)
+            return metric_values[0] # return F1 for EXPR and AU
         else:
             self.log('{}_{}'.format(save_name, 'valence'), metric_values[0], on_epoch=True, logger=True)  
             self.log('{}_{}'.format(save_name, 'arousal'), metric_values[1], on_epoch=True, logger=True) 
-        return metric_task
+            return 0.5*metric_values[0]+0.5*metric_values[1]
     def validation_single_task(self, dataloader_idx, preds, labels):
         if len(labels.size())==1:
             # expr
@@ -404,7 +405,7 @@ class Multitask_EmotionNet(pl.LightningModule):
              labels[:, :len(self.au_names_list)])
             metrics_va = self.validation_single_task(dataloader_idx, preds,
              labels[:, len(self.au_names_list):])
-            return metrics_aus+metrics_va
+            idx_metric =  (metrics_aus+metrics_va)*0.5
 
         elif len(labels.size())>1 and labels.size(1) == len(self.au_names_list)+1+2:
             # au_expr_va
@@ -414,9 +415,11 @@ class Multitask_EmotionNet(pl.LightningModule):
              labels[:, len(self.au_names_list)])
             metrics_va = self.validation_single_task(dataloader_idx, preds,
              labels[:, -2:])
-            return metrics_aus+metrics_expr+metrics_va
+            idx_metric = (metrics_aus+metrics_expr+metrics_va)*(1/3)
         else:
-            return self.validation_single_task(dataloader_idx, preds, labels)
+            idx_metric = self.validation_single_task(dataloader_idx, preds, labels)
+        
+        return idx_metric
 
     def validation_epoch_end(self, validation_step_outputs):
         #check the validation step outputs
@@ -426,6 +429,7 @@ class Multitask_EmotionNet(pl.LightningModule):
         for dataloader_idx in range(num_dataloaders):
             val_dl_outputs = validation_step_outputs[dataloader_idx]
             idx_metric = self.validation_on_single_dataloader(dataloader_idx, val_dl_outputs)
+            total_metric+=idx_metric
         self.log('val_total', total_metric, on_epoch=True, logger=True) 
 
     def configure_optimizers(self,):
