@@ -109,7 +109,7 @@ if __name__ == '__main__':
     tb_logger = pl_loggers.TensorBoardLogger(ckp_dir)
     trainer = Trainer(gpus=1, benchmark=True,
         default_root_dir = ckp_dir, logger = tb_logger, log_every_n_steps=100, 
-        max_steps = 3e5,
+        max_steps = 6e5,
         callbacks =[lr_monitor, ckp_callback1],
         resume_from_checkpoint=args.resume_ckp)
         # limit_train_batches = 0.01, 
