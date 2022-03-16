@@ -58,7 +58,19 @@ def parse_video_name(frame_paths):
         mask = indexes == i
         video_ids_dict[v] = np.arange(len(mask))[mask] 
     return video_ids_dict
-
+def get_val_videos_set(task_names):
+    task_names = task_names.split("_")
+    val_videos = []
+    for task in task_names:
+        if task=='AU':
+            file = '../AU/AU_annotations.pkl'
+        elif task =='EXPR':
+            file = '../EXPR/EXPR_annotations.pkl'
+        elif task=='VA':
+            file = '../VA/VA_annotations.pkl'
+        data = pickle.load(open(file, 'rb'))
+        val_videos.extend(list(data['Validation'].keys()))
+    return val_videos
 if __name__=='__main__':
     save_path = 'annotations.pkl'
     if not os.path.exists(save_path):
@@ -67,6 +79,7 @@ if __name__=='__main__':
         set_lists = ['Train', 'Validation']
         for name in ['AU_EXPR', 'AU_VA', 'EXPR_VA', 'AU_EXPR_VA']:
             data_file = {}
+            val_videos_list_other_datasets = get_val_videos_set(name)
             for annot_file, set_name in zip(annot_files, set_lists):
                 data_file[set_name] = {}
                 txt_file = os.path.join(args.annot_dir, annot_file)
@@ -104,7 +117,8 @@ if __name__=='__main__':
                             new_expr = expr[ids_list][video_frame_ids]
                             new_VA = VA[ids_list][video_frame_ids]    
                         video_path = [new_paths[i] for i in video_frame_ids]
-                        parse_video_data(video_name, video_path, new_AU, new_expr, new_VA,
+                        if (set_name=='Train' and video_name not in val_videos_list_other_datasets) or set_name !='Train':
+                            parse_video_data(video_name, video_path, new_AU, new_expr, new_VA,
                             data_file[set_name])
             pickle.dump(data_file, open(name+'_'+save_path, 'wb'))
     else:
