@@ -8,7 +8,7 @@ class PATH(object):
         #     categories = {'AU': ['AU1','AU2','AU4','AU6','AU7','AU10','AU12','AU15','AU23','AU24','AU25','AU26'],
         #     #['AU1','AU2','AU4','AU6','AU9','AU12','AU25','AU26']
         #     })
-        self.Hidden_AUs = []
+        self.Hidden_AUs = ['AU5', 'AU9', 'AU14', 'AU16', 'AU17']
 
         # self.AffectNet = Dataset_Info(data_file = 'create_annotation_file/AffectNet_March/annotations_aligned_large_margin.pkl',
         #  test_data_file = '',
