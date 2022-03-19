@@ -1,6 +1,6 @@
 import os
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
-from models.static_model import Multitask_EmotionNet
+from models.static_graph_model import Multitask_EmotionNet
 from data.ABAW3_DataModule import get_MTL_datamodule
 from utils.data_utils import train_transforms, test_transforms, Tversky_Loss_with_Logits, FocalTversky_Loss_with_Logits, CCCLoss
 from PATH import PATH
