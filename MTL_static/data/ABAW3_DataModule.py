@@ -97,18 +97,18 @@ def get_MTL_datamodule(video, img_size, batch_size, seq_len=None, num_workers_tr
         transforms_train=train_transforms(img_size), transforms_test=test_transforms(img_size), 
         seq_len=seq_len)
 
-    dataset4 = get_Dataset_TrainVal("create_annotation_file/MTL/AU_VA_annotations.pkl", video=video,
-        transforms_train=train_transforms(img_size), transforms_test=test_transforms(img_size), 
-        seq_len=seq_len)
-    dataset5 = get_Dataset_TrainVal("create_annotation_file/MTL/AU_EXPR_VA_annotations.pkl", video=video,
-        transforms_train=train_transforms(img_size), transforms_test=test_transforms(img_size), 
-        seq_len=seq_len)
+    # dataset4 = get_Dataset_TrainVal("create_annotation_file/MTL/AU_VA_annotations.pkl", video=video,
+    #     transforms_train=train_transforms(img_size), transforms_test=test_transforms(img_size), 
+    #     seq_len=seq_len)
+    # dataset5 = get_Dataset_TrainVal("create_annotation_file/MTL/AU_EXPR_VA_annotations.pkl", video=video,
+    #     transforms_train=train_transforms(img_size), transforms_test=test_transforms(img_size), 
+    #     seq_len=seq_len)
     dm = MTL_DataModule(video,
         [dataset1[0], dataset2[0], dataset3[0]], 
         [dataset1[1], dataset2[1], dataset3[1]], batch_size,
-        # None, None, None,
-        [dataset4[0], dataset5[0]], [dataset4[1], dataset5[1]],
-        max(1, int(batch_size*(1/15))),
+        None, None, None, # not use the mtl datasets
+        #[dataset4[0], dataset5[0]], [dataset4[1], dataset5[1]],
+        # max(1, int(batch_size*(1/15))),
         num_workers_train = num_workers_train, 
         num_workers_test=num_workers_test)
 
