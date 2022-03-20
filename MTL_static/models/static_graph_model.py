@@ -161,9 +161,9 @@ class Multitask_EmotionNet(InceptionV3MTModel):
             emotion_classifiers.append(classifier)
 
         self.emotion_classifiers = nn.ModuleList(emotion_classifiers)
-        N_regions = len(self.au_names_list) + len(PRESET_VARS.Hidden_AUs)
-        self.adjacency_matrix = nn.Linear(N_regions, N_regions, bias=False)
-        parametrize.register_parametrization(self.adjacency_matrix, 'weight', Symmetric())
+        #N_regions = len(self.au_names_list) + len(PRESET_VARS.Hidden_AUs)
+        #self.adjacency_matrix = nn.Linear(N_regions, N_regions, bias=False)
+        #parametrize.register_parametrization(self.adjacency_matrix, 'weight', Symmetric())
         # torch.allclose(self.adjacency_matrix.weight, self.adjacency_matrix.weight.T)
     def forward(self, x):
         # import pdb; pdb.set_trace()
@@ -248,14 +248,14 @@ class Multitask_EmotionNet(InceptionV3MTModel):
                 prog_bar=True, logger=True)
             total_loss += loss
             
-            # graph loss is independent of the annotations. It needs to be computed for every part of data
-            graph_metrics = metrics['EXPR'] # bs, L, D
-            length = graph_metrics.size(1)
-            inner_product = torch.bmm(graph_metrics, graph_metrics.permute((0, 2, 1))) # bs, L, L
-            inner_product_w = torch.mul(inner_product, self.adjacency_matrix.weight)
-            mask = (1-torch.eye(length)).unsqueeze(0).expand(inner_product_w.size()).bool().to(graph_metrics.device)
-            g_loss = - (inner_product_w[mask].mean() - 0.001*torch.exp(inner_product[mask]).mean())# bs, L, L
-            graph_loss += g_loss
+            # # graph loss is independent of the annotations. It needs to be computed for every part of data
+            # graph_metrics = metrics['EXPR'] # bs, L, D
+            # length = graph_metrics.size(1)
+            # inner_product = torch.bmm(graph_metrics, graph_metrics.permute((0, 2, 1))) # bs, L, L
+            # inner_product_w = torch.mul(inner_product, self.adjacency_matrix.weight)
+            # mask = (1-torgach.eye(length)).unsqueeze(0).expand(inner_product_w.size()).bool().to(graph_metrics.device)
+            # g_loss = - (inner_product_w[mask].mean() - 0.001*torch.exp(inner_product[mask]).mean())# bs, L, L
+            # graph_loss += g_loss
 
         self.log('total_loss', total_loss, on_step=True, on_epoch=True, 
             prog_bar=True, logger=True)
