@@ -45,7 +45,7 @@ class DataModuleBase(pl.LightningDataModule):
         raise NotImplementedError
 
 class ImageDataset(DatasetBase):
-    def __init__(self, mode:str, transforms_train=None, transforms_test=None, parse_label_func=lambda x:x, annotation_file:Optional[str]=None):
+    def __init__(self, mode:str, transforms_train=None, transforms_test=None, parse_label_func=lambda x:x, annotation_file=None):
         """Summary
         
         Args:
@@ -63,7 +63,10 @@ class ImageDataset(DatasetBase):
         self.read_annotaion_file()
         self.parse_label_func = parse_label_func
     def read_annotaion_file(self):
-        data = pickle.load(open(self.annotation_file, 'rb'))
+        if isinstance(self.annotation_file, str):
+            data = pickle.load(open(self.annotation_file, 'rb'))
+        elif isinstance(self.annotation_file, dict):
+            data = self.annotation_file
         data = data[self.mode]
         if self.mode =='Train':
             self._transform = self.transforms_train
@@ -110,7 +113,7 @@ class ImageDataset(DatasetBase):
         return self.dataset_size
 
 class ImageSequenceDataset(DatasetBase):
-    def __init__(self, mode:str, seq_len: int, transforms_train=None, transforms_test=None, parse_label_func=lambda x:x, annotation_file:Optional[str]=None):
+    def __init__(self, mode:str, seq_len: int, transforms_train=None, transforms_test=None, parse_label_func=lambda x:x, annotation_file=None):
         self.mode = mode  
         assert self.mode in ['Train', 'Validation', 'Test'], "Wrong mode!"
         self.seq_len = seq_len
@@ -120,7 +123,10 @@ class ImageSequenceDataset(DatasetBase):
         self.read_annotaion_file()
         self.parse_label_func = parse_label_func
     def read_annotaion_file(self):
-        data = pickle.load(open(self.annotation_file, 'rb'))
+        if isinstance(self.annotation_file, str):
+            data = pickle.load(open(self.annotation_file, 'rb'))
+        elif isinstance(self.annotation_file, dict):
+            data = self.annotation_file
         data = data[self.mode]
         if self.mode =='Train':
             self._transform = self.transforms_train
