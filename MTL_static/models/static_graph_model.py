@@ -241,9 +241,7 @@ class Multitask_EmotionNet(InceptionV3MTModel):
             if task == 'AU':
                 loss = self.training_task(preds_task, labels_task, metrics_task, task)
             else:
-                bs, length = preds_task.size(0), preds_task.size(1)
-                repeats_dims = (length) if task == 'EXPR' else (length, 1)
-                loss = self.training_task(preds_task.view((bs*length, -1)), labels_task.repeat(repeats_dims), metrics_task.view((bs*length, -1)), task)
+                loss = self.training_task(preds_task.mean(1), labels_task, metrics_task, task)
             self.log('loss_{}'.format(task), loss, on_step=True, on_epoch=True, 
                 prog_bar=True, logger=True)
             total_loss += loss
