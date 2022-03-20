@@ -254,7 +254,7 @@ class Multitask_EmotionNet(InceptionV3MTModel):
             inner_product = torch.bmm(graph_metrics, graph_metrics.permute((0, 2, 1))) # bs, L, L
             inner_product_w = torch.mul(inner_product, self.adjacency_matrix.weight)
             mask = (1-torch.eye(length)).unsqueeze(0).expand(inner_product_w.size()).bool().to(graph_metrics.device)
-            g_loss = - inner_product_w[mask].mean()# bs, L, L
+            g_loss = - (inner_product_w[mask].mean() - 0.001*torch.exp(inner_product[mask]).mean())# bs, L, L
             graph_loss += g_loss
 
         self.log('total_loss', total_loss, on_step=True, on_epoch=True, 
