@@ -145,6 +145,8 @@ class ImageSequenceDataset(DatasetBase):
             length = len(video_df)
             if length//self.seq_len ==0:
                 continue
+                print('one video filtered out because of its short length')
+                print(video_df)
             for i in range(length//self.seq_len + 1):
                 if i !=length//self.seq_len:
                     start, end = i*self.seq_len, (i+1)*self.seq_len
@@ -160,6 +162,7 @@ class ImageSequenceDataset(DatasetBase):
         start, end = self.sample_seqs[index]
         df = self.df.iloc[start:end]
         images, labels = [], []
+        image_paths = []
         for _, row in df.iterrows():
             label = self.parse_label_func(row)
             img_path = row['path']
@@ -176,8 +179,9 @@ class ImageSequenceDataset(DatasetBase):
             image = self._transform(image)
             images.append(image)
             labels.append(label)
+            image_paths.append(row['path'])
         labels = np.stack(labels, axis=0)
-        return torch.stack(images, dim=0), torch.from_numpy(labels)
+        return torch.stack(images, dim=0), torch.from_numpy(labels), image_paths
     @property
     def ids(self):
         return np.arange(len(self.sample_seqs))
@@ -398,5 +402,5 @@ class ConcatImageSequenceDataset(ConcatDataset):
                 dataset_sample_seqs = self.datasets[i].sample_seqs
                 for _ in range(max_length//N):
                     self.datasets[i].sample_seqs += self.datasets[i].sample_seqs
-                print("dataset {} resampled from {} to {} images".format(i, N, len(self.datasets[i])))
+                print("dataset {} resampled from {} to {} image sequences".format(i, N, len(self.datasets[i])))
         print("The reference length of datasets is {}".format(max_length))
