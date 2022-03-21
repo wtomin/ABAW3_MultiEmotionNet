@@ -223,7 +223,7 @@ class Multitask_EmotionNet(InceptionV3MTModel):
         return outputs, metrics
 
     def training_step(self, batch, batch_idx):
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         (x_au, y_au, _), (x_expr, y_expr, _), (x_va, y_va, _) = batch['single'] 
         if 'multiple' in batch.keys():
             (x_au_va, y_au_va, _), (x_au_expr_va, y_au_expr_va, _) = batch['multiple']
