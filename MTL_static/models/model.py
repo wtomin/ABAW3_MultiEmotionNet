@@ -95,7 +95,8 @@ class InceptionV3MTModel(MultitaskModel):
         VA_cls_loss_func = None,
         AU_metric_loss_func = None,
         EXPR_metric_loss_func = None,
-        VA_metric_loss_func = None): 
+        VA_metric_loss_func = None,
+        avg_features = True): 
         super(InceptionV3MTModel, self).__init__() 
         self.tasks = tasks
         self.backbone_CNN = get_backbone_from_name(backbone, pretrained=True, remove_classifier=True)
@@ -118,6 +119,7 @@ class InceptionV3MTModel(MultitaskModel):
         self.VA_metric_loss_func = VA_metric_loss_func
         self.features_dim = self.backbone_CNN.features_dim
         self.features_width = self.backbone_CNN.features_width
+        self.avg_features = avg_features
 
         self.configure_architecture() # define unique model architecture
 
@@ -198,7 +200,7 @@ class InceptionV3MTModel(MultitaskModel):
         preds = torch.cat([x[0] for x in val_dl_outputs], dim=0).cpu()
         labels= torch.cat([x[1] for x in val_dl_outputs], dim=0).cpu()
         preds = self.turn_mul_emotion_preds_to_dict(preds)
-        if len(labels.size())>1 and labels.size(1) == len(self.au_names_list)+2:
+        if len(labels.size())>1 and labels.size(-1) == len(self.au_names_list)+2:
             # au_va
             metrics_aus = self.validation_single_task(dataloader_idx, preds,
              labels[:, :len(self.au_names_list)])
@@ -206,7 +208,7 @@ class InceptionV3MTModel(MultitaskModel):
              labels[:, len(self.au_names_list):])
             idx_metric =  (metrics_aus+metrics_va)*0.5
 
-        elif len(labels.size())>1 and labels.size(1) == len(self.au_names_list)+1+2:
+        elif len(labels.size())>1 and labels.size(-1) == len(self.au_names_list)+1+2:
             # au_expr_va
             metrics_aus = self.validation_single_task(dataloader_idx, preds,
              labels[:, : len(self.au_names_list)])
