@@ -92,7 +92,7 @@ if __name__ == '__main__':
     img_size = 299
 
     dm = get_MTL_datamodule(video=False, img_size = img_size,
-        batch_size=24, num_workers_train=8, num_workers_test=8)
+        batch_size=24, num_workers_train=4, num_workers_test=4)
 
     ckp_dir = os.path.join(args.ckp_save_dir, args.exp_name)
     # on TACC platform, save the model in USERDIR
