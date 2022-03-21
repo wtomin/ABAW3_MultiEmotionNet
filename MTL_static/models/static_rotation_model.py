@@ -103,6 +103,7 @@ class Attention_Metric_Module(nn.Module):
 class Multitask_EmotionNet(InceptionV3MTModel):
     def __init__(*args, **kwargs):
         InceptionV3MTModel.__init__(*args, **kwargs)
+        assert self.avg_features 
     def configure_architecture(self):
         # attention branches
         self.AU_attention_convs = nn.Sequential(

@@ -195,16 +195,28 @@ class Multitask_EmotionNet(InceptionV3MTModel):
             projected = self.transformation_matrices[i_au](au_metric)
             EXPR_VA_metrics.append(projected)
         EXPR_VA_metrics = torch.stack(EXPR_VA_metrics, dim=1) # bs, numeber of regions, dim
-        bs, length = EXPR_VA_metrics.size(0), EXPR_VA_metrics.size(1)
-        # EXPR classifier
-        i_classifier = self.tasks.index('EXPR')
-        outputs['EXPR'] = self.emotion_classifiers[i_classifier](EXPR_VA_metrics.view((bs*length, -1))).view((bs, length, -1))
-        metrics['EXPR'] = EXPR_VA_metrics
+        if not self.avg_features:
+            bs, length = EXPR_VA_metrics.size(0), EXPR_VA_metrics.size(1)
+            # EXPR classifier
+            i_classifier = self.tasks.index('EXPR')
+            outputs['EXPR'] = self.emotion_classifiers[i_classifier](EXPR_VA_metrics.view((bs*length, -1))).view((bs, length, -1))
+            metrics['EXPR'] = EXPR_VA_metrics
 
-        # VA classifier
-        i_classifier = self.tasks.index('VA')
-        outputs['VA'] = self.emotion_classifiers[i_classifier](EXPR_VA_metrics.view((bs*length, -1))).view((bs, length, -1))
-        metrics['VA'] = EXPR_VA_metrics
+            # VA classifier
+            i_classifier = self.tasks.index('VA')
+            outputs['VA'] = self.emotion_classifiers[i_classifier](EXPR_VA_metrics.view((bs*length, -1))).view((bs, length, -1))
+            metrics['VA'] = EXPR_VA_metrics
+        else:
+            EXPR_VA_metrics = EXPR_VA_metrics.mean(1)
+            # EXPR classifier
+            i_classifier = self.tasks.index('EXPR')
+            outputs['EXPR'] = self.emotion_classifiers[i_classifier](EXPR_VA_metrics)
+            metrics['EXPR'] = EXPR_VA_metrics
+
+            # VA classifier
+            i_classifier = self.tasks.index('VA')
+            outputs['VA'] = self.emotion_classifiers[i_classifier](EXPR_VA_metrics)
+            metrics['VA'] = EXPR_VA_metrics 
         return outputs, metrics
 
     def training_step(self, batch, batch_idx):
@@ -237,7 +249,10 @@ class Multitask_EmotionNet(InceptionV3MTModel):
             if task == 'AU':
                 loss = self.training_task(preds_task, labels_task, metrics_task, task)
             else:
-                loss = self.training_task(preds_task.mean(1), labels_task, metrics_task, task)
+                if not self.avg_features:
+                    loss = self.training_task(preds_task.mean(1), labels_task, metrics_task, task)
+                else:
+                    loss = self.training_task(preds_task, labels_task, metrics_task, task)
             self.log('loss_{}'.format(task), loss, on_step=True, on_epoch=True, 
                 prog_bar=True, logger=True)
             total_loss += loss
@@ -250,5 +265,7 @@ class Multitask_EmotionNet(InceptionV3MTModel):
         # the batch input: input_image, label
         x, y = batch 
         preds,_  = self(x) # the batch output: preds_dictionary, metrics
-        return torch.cat([preds['AU'], preds['EXPR'].mean(1), preds['VA'].mean(1)], dim=-1), y
-
+        if not self.avg_features:
+            return torch.cat([preds['AU'], preds['EXPR'].mean(1), preds['VA'].mean(1)], dim=-1), y
+        else:
+            return torch.cat([preds['AU'], preds['EXPR'], preds['VA']], dim=-1), y

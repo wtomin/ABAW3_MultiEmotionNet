@@ -1,6 +1,6 @@
 import os
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
-from models.static_linear_model import Multitask_EmotionNet
+from models.temporal_LSTM_model import Multitask_EmotionNet
 from data.ABAW3_DataModule import get_MTL_datamodule
 from utils.data_utils import train_transforms, test_transforms, Tversky_Loss_with_Logits, FocalTversky_Loss_with_Logits, CCCLoss
 from PATH import PATH
@@ -21,7 +21,7 @@ if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()
 
-    parser.add_argument('--ckp-save-dir', type=str, default='Static_MultiEmotionNet')
+    parser.add_argument('--ckp-save-dir', type=str, default='Temporal_MultiEmotionNet')
     parser.add_argument('--exp-name', type=str, default='experiment_1')
     parser.add_argument('--find_best_lr', action="store_true")
     parser.add_argument('--lr', type=float, default = 1e-3)
@@ -91,8 +91,8 @@ if __name__ == '__main__':
 
     img_size = 299
 
-    dm = get_MTL_datamodule(video=False, img_size = img_size,
-        batch_size=24, num_workers_train=8, num_workers_test=8)
+    dm = get_MTL_datamodule(video=True, img_size = img_size, seq_len = 24,
+        batch_size=1, num_workers_train=8, num_workers_test=8)
 
     ckp_dir = os.path.join(args.ckp_save_dir, args.exp_name)
     # on TACC platform, save the model in USERDIR
