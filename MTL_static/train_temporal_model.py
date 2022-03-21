@@ -27,7 +27,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr', type=float, default = 1e-3)
     parser.add_argument('--resume_ckp', type=str, default=None,
         help='if set resume ckp, load it before training')
-    parser.add_argument('--avg_features', type=bool, action = 'store_true',
+    parser.add_argument('--avg_features', action = 'store_true',
         help='When true, the model architecture averages the features for EXPR-VA,otherwise, it averages the predictions.')
 
     args = parser.parse_args()
