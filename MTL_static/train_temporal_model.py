@@ -70,7 +70,7 @@ def get_Dataset_Val(annotation_file,  transforms_train=None, transforms_test=Non
     return testset
 
 class Temporal_Smoother_Trainer(object):
-    def __init__(self, model, task, annotation_file, save_path, alpha_list = [0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0]):
+    def __init__(self, model, task, annotation_file, save_path, alpha_list = [7, 8, 9, 10]):
         self.model = model
         self.task = task
         self.annotation_file = annotation_file
@@ -98,14 +98,14 @@ class Temporal_Smoother_Trainer(object):
             lines.append(line+'\n')
             
             total_metric_alpha = self.evaluate_on_datasets(train_datasets, self.alpha_list)
-            for alpha in self.alpha_list
+            for alpha in self.alpha_list:
                 line = "alpha : {:.2f} metric: {:.6f}".format(alpha, total_metric_alpha[alpha])
                 print(line)
                 lines.append(line+'\n')
             index = np.argmax([total_metric_alpha[alpha] for alpha in self.alpha_list])
             best_alpha = self.alpha_list[index]
             val_metric = self.evaluate_on_datasets(val_dataset, [best_alpha])
-            line = 'Fold {}, val metric with the best alpha ({:.2f}): {:.6f}\n'.format(val_id, best_alpha, val_metric[0])
+            line = 'Fold {}, val metric with the best alpha ({:.2f}): {:.6f}\n'.format(val_id, best_alpha, val_metric[best_alpha])
             print(line)
             lines.append(line)
         with open(self.save_path, 'w') as f:
@@ -131,7 +131,7 @@ class Temporal_Smoother_Trainer(object):
         for alpha in alpha_list:
             total_estimates[alpha] = np.concatenate(total_estimates[alpha], axis=0)
             total_labels[alpha] = np.concatenate(total_labels[alpha], axis=0)
-        return [return_metric(total_estimates[alpha], total_labels[alpha], self.task) for alpha in alpha_list]
+        return dict([(alpha, return_metric(total_estimates[alpha], total_labels[alpha], self.task)) for alpha in alpha_list])
 
     def predict_single_video(self, video_dataset, alpha_list):
         test_dataloader = torch.utils.data.DataLoader(
