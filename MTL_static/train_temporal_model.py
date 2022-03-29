@@ -176,6 +176,17 @@ class Temporal_Smoother_Trainer(object):
         track_labels = np.concatenate(track_labels, axis=0)
 
         return total_estimates, track_labels
+class Temporal_Smoother_Validation(Temporal_Smoother_Trainer):
+    def __init__(self, model, task, annotation_file, best_alpha):
+        self.model = model
+        self.task = task
+        self.annotation_file = annotation_file
+        self.best_alpha = best_alpha
+        self.datasets = self.create_datasets()
+        self.validation()
+    def validation(self):
+        metrics = self.evaluate_on_datasets(self.datasets, alpha_list = [self.best_alpha])
+        print('best_alpha: {} task: {} metric:{}'.format(self.best_alpha,self.task, metrics[self.best_alpha] ))
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
@@ -225,12 +236,14 @@ if __name__ == '__main__':
     model.cuda()
 
     img_size = 299
-    annotation_files = ['create_annotation_file/AU/AU_annotations.pkl',
+    annotation_files = [#'create_annotation_file/AU/AU_annotations.pkl',
     'create_annotation_file/EXPR/EXPR_annotations.pkl',
     'create_annotation_file/VA/VA_annotations.pkl']
-    tasks = ['AU', 
+    tasks = [#'AU', 
     'EXPR', 
     'VA']
+    best_alphas = {'AU':7, 'EXPR': 9, 'VA':9}
     save_txt = 'three_cv_res_{}.txt'
     for task, annotation_file in zip(tasks, annotation_files):
-        Temporal_Smoother_Trainer(model, task, annotation_file, save_txt.format(task))
+        #Temporal_Smoother_Trainer(model, task, annotation_file, save_txt.format(task))
+        Temporal_Smoother_Validation(model, task, annotation_file, best_alphas[task])
