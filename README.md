@@ -17,7 +17,6 @@ pip install requirements.txt
 
 ![image info](./MTL/figures/Model_Architecture.jpg)
 
-$U=17, D=16$.
 
 # Pretrained Model
 
@@ -31,7 +30,8 @@ The validation metrics are listed below:
 | --- | ---| ---| ---|
 | 0.548| 0.518| 0.447| 0.499|
 
- 
+
+For more details about this approach, please refer to our [Axiv paper](https://arxiv.org/abs/2203.12845).
 
 
 
