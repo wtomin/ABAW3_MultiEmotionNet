@@ -15,7 +15,6 @@ from torch.nn import TransformerEncoderLayer
 from typing import Optional, Any
 from torch import Tensor
 import math
-import geotorch
 from PATH import PATH
 PRESET_VARS = PATH()
 #from utils.data_utils import compute_center_contrastive_loss, get_center_delta
