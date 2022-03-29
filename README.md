@@ -15,7 +15,7 @@ pip install requirements.txt
 
 # Model Architecture
 
-![image info](./MTL/figures/Model_Architecture.png)
+![image info](./MTL/figures/Model_Architecture.jpg)
 
 
 
