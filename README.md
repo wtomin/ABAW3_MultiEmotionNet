@@ -17,6 +17,21 @@ pip install requirements.txt
 
 ![image info](./MTL/figures/Model_Architecture.jpg)
 
+$U=17, D=16$.
+
+# Pretrained Model
+
+The pretrained model can be downloaded from this [link](https://hkustconnect-my.sharepoint.com/:u:/g/personal/ddeng_connect_ust_hk/EaRbMo6Q5uZGtHqQHfGzxigB3xJwzjkGF3qS8hlbw4gVPA?e=0N0Iv3). 
+
+This model was trained on the training set of the Aff-wild2 dataset, and evaluated on the validation set of the Aff-wild2 dataset.
+
+The validation metrics are listed below:
+
+| F1-AU | F1-EXPR | CCC-V | CCC-A|
+| --- | ---| ---| ---|
+| 0.548| 0.518| 0.447| 0.499|
+
+ 
 
 
 
