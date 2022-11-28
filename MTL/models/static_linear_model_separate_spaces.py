@@ -232,7 +232,7 @@ class Multitask_EmotionNet(InceptionV3MTModel):
             i_classifier = self.tasks.index('VA')
             outputs['VA'] = self.emotion_classifiers[i_classifier](VA_metrics)
             metrics['VA'] = VA_metrics 
-        return outputs, metrics
+        return outputs, [metrics, attention_outputs]
 
     def training_step(self, batch, batch_idx):
         # import pdb; pdb.set_trace()
